@@ -1,4 +1,3 @@
-git init
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from base64 import b64encode  # Pastikan impor ini ada
 import requests
