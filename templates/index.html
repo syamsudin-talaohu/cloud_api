@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Recognition</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <h1>Image Recognition with Clarifai</h1>
+    <form id="upload-form" method="POST" enctype="multipart/form-data">
+      <label for="image">Upload Image:</label>
+      <input type="file" id="image" name="image" accept="image/*" required />
+      <button type="submit">Predict</button>
+    </form>
+    <div id="uploaded-image"></div>
+    <div id="results"></div>
+
+    <script>
+      const imageInput = document.getElementById("image");
+      const uploadedImageDiv = document.getElementById("uploaded-image");
+
+      imageInput.onchange = () => {
+        const file = imageInput.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            uploadedImageDiv.innerHTML = `<h2>Uploaded Image:</h2><img src="${e.target.result}" alt="Uploaded Image" style="max-width: 100%; height: auto;">`;
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      document.getElementById("upload-form").onsubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append("image", document.getElementById("image").files[0]);
+
+        const response = await fetch("/predict", {
+          method: "POST",
+          body: formData,
+        });
+
+        const resultsDiv = document.getElementById("results");
+        if (response.ok) {
+          const data = await response.json();
+          resultsDiv.innerHTML = "<h2>Predictions:</h2>";
+          data.forEach((item) => {
+            resultsDiv.innerHTML += `<p>${item.name}: ${item.value}</p>`;
+          });
+        } else {
+          resultsDiv.innerHTML = "<p>Error processing image</p>";
+        }
+      };
+    </script>
+  </body>
+</html>
